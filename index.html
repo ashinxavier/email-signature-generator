@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Signature Generator</title>
+    <style>
+        :root {
+            --bg-warm: #F9F7F4;
+            --text-dark: #2B2B2B;
+            --text-muted: #6B6B6B;
+            --input-bg: #FFFFFF;
+            --input-border: #E0E0E0;
+            --input-focus: #4A90E2;
+            --button-primary: #4A90E2;
+            --button-hover: #357ABD;
+            --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius-sm: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-warm);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: var(--spacing-lg);
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeUp 0.4s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Auth Button */
+        .auth-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--button-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-medium);
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--input-border);
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-warm);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-section,
+        .preview-section {
+            background: var(--input-bg);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 36px 12px 12px;
+            border: 2px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: var(--input-bg);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--text-muted);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .clear-btn:hover {
+            background: var(--text-dark);
+        }
+
+        .input-wrapper.has-content .clear-btn {
+            display: flex;
+        }
+
+        /* Logo Upload Section */
+        .logo-upload-zone {
+            border: 2px dashed var(--input-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-warm);
+        }
+
+        .logo-upload-zone:hover,
+        .logo-upload-zone.drag-over {
+            border-color: var(--input-focus);
+            background: rgba(74, 144, 226, 0.05);
+        }
+
+        .logo-upload-zone input[type="file"] {
+            display: none;
+        }
+
+        .logo-preview-container {
+            margin-top: var(--spacing-md);
+            display: none;
+        }
+
+        .logo-preview-container.active {
+            display: block;
+        }
+
+        .logo-preview {
+            max-width: 200px;
+            margin: 0 auto var(--spacing-md);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-sm);
+            background: white;
+        }
+
+        .logo-preview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .logo-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text-dark);
+            border: 2px solid var(--input-border);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--input-focus);
+            transform: translateY(-1px);
+        }
+
+        /* Cropping Tool */
+        .crop-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .crop-overlay.active {
+            display: flex;
+        }
+
+        .crop-container {
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .crop-canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: var(--spacing-md);
+        }
+
+        #cropCanvas {
+            max-width: 100%;
+            border: 1px solid var(--input-border);
+        }
+
+        .crop-controls {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+        }
+
+        /* Preview */
+        .preview-card {
+            border: 2px solid var(--input-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            min-height: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-card.dark-mode {
+            background: #1A1A1A;
+            color: #E0E0E0;
+        }
+
+        .preview-card.light-mode {
+            background: #FFFFFF;
+            color: #2B2B2B;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn-primary:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: var(--input-bg);
+            padding: 12px 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--input-border);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--button-primary);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-md);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: scaleIn 0.3s ease-out;
+            width: 90%;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-warm);
+            color: var(--text-dark);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .instruction-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .instruction-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--button-primary);
+        }
+
+        .instruction-section ol {
+            margin-left: var(--spacing-lg);
+        }
+
+        .instruction-section li {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        /* Auth Modal Tabs */
+        .auth-tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--input-border);
+        }
+
+        .auth-tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            border-bottom-color: var(--button-primary);
+            color: var(--button-primary);
+            font-weight: 600;
+        }
+
+        .auth-panel {
+            display: none;
+        }
+
+        .auth-panel.active {
+            display: block;
+        }
+
+        /* Saved Signatures List */
+        .signatures-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .signature-item {
+            padding: var(--spacing-md);
+            border: 2px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .signature-info h4 {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .signature-info small {
+            color: var(--text-muted);
+        }
+
+        .signature-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-dark);
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-medium);
+            z-index: 1001;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Loading Spinner */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1002;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .toggle-switch {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .auth-container {
+                position: static;
+                text-align: right;
+                margin-bottom: var(--spacing-md);
+            }
+        }
+
+        /* Signature Styles (for preview) */
+        .email-signature {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 400px;
+        }
+
+        .email-signature a {
+            text-decoration: none;
+        }
+
+        .required {
+            color: #E74C3C;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <header>
+            <!-- Auth Section -->
+            <div class="auth-container">
+                <button class="btn-primary" id="signInBtn">🔐 Sign In</button>
+                <div class="user-menu hidden" id="userMenu">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <div class="dropdown-item" id="mySignaturesBtn">📝 My Signatures</div>
+                        <div class="dropdown-item" id="signOutBtn">🚪 Sign Out</div>
+                    </div>
+                </div>
+            </div>
+
+            <h1>✉️ Email Signature Generator</h1>
+            <p class="subtitle">Create a professional email signature in seconds</p>
+        </header>
+
+        <div class="main-container">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2 class="section-title">Your Details</h2>
+
+                <!-- Logo Upload -->
+                <div class="form-group">
+                    <label>Company Logo (Optional)</label>
+                    <div class="logo-upload-zone" id="logoUploadZone">
+                        <input type="file" id="logoInput" accept="image/png,image/jpeg,image/jpg,image/svg+xml">
+                        <p>📷 Drag & drop your logo here</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px;">or click to browse
+                            (PNG, JPG, SVG • Max 2MB)</p>
+                    </div>
+
+                    <div class="logo-preview-container" id="logoPreviewContainer">
+                        <div class="logo-preview" id="logoPreview"></div>
+                        <div class="logo-actions">
+                            <button class="btn-secondary" id="cropBtn">✂️ Crop</button>
+                            <button class="btn-secondary" id="removeBgBtn">🎨 Remove Background</button>
+                            <button class="btn-secondary" id="removeLogo">🗑️ Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label>Name <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="text" id="nameInput" placeholder="John Doe" required>
+                        <button class="clear-btn" data-target="nameInput">×</button>
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="titleInput" placeholder="Software Engineer">
+                        <button class="clear-btn" data-target="titleInput">×</button>
+                    </div>
+                </div>
+
+                <!-- Company -->
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="companyInput" placeholder="Acme Corporation">
+                        <button class="clear-btn" data-target="companyInput">×</button>
+                    </div>
+                </div>
+
+                <!-- Website -->
+                <div class="form-group">
+                    <label>Website URL</label>
+                    <div class="input-wrapper">
+                        <input type="url" id="websiteInput" placeholder="https://example.com">
+                        <button class="clear-btn" data-target="websiteInput">×</button>
+                    </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <div class="input-wrapper">
+                        <input type="tel" id="phoneInput" placeholder="+1 (555) 123-4567">
+                        <button class="clear-btn" data-target="phoneInput">×</button>
+                    </div>
+                </div>
+
+                <!-- Twitter -->
+                <div class="form-group">
+                    <label>Twitter/X Handle</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="twitterInput" placeholder="@username">
+                        <button class="clear-btn" data-target="twitterInput">×</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h2 class="section-title">Preview</h2>
+                <div class="preview-card light-mode" id="previewCard">
+                    <div id="signaturePreview" class="email-signature">
+                        <p style="color: var(--text-muted);">Fill in your details to see the preview...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="toggle-switch">
+                <span>☀️ Light</span>
+                <label class="switch">
+                    <input type="checkbox" id="modeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span>🌙 Dark</span>
+            </div>
+
+            <button class="btn-primary hidden" id="saveBtn">💾 Save Signature</button>
+            <button class="btn-primary" id="copyBtn">📋 Copy HTML</button>
+            <button class="btn-primary" id="importBtn">❓ How to Import?</button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <button class="modal-close" id="authModalClose">×</button>
+            <h2 class="modal-title">Welcome!</h2>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="signin">Sign In</div>
+                <div class="auth-tab" data-tab="signup">Sign Up</div>
+            </div>
+
+            <!-- Sign In Panel -->
+            <div class="auth-panel active" id="signinPanel">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signinEmail" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signinPassword" placeholder="••••••••">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 16px;" id="signinSubmit">Sign In</button>
+            </div>
+
+            <!-- Sign Up Panel -->
+            <div class="auth-panel" id="signupPanel">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" placeholder="••••••••">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 16px;" id="signupSubmit">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Signature Modal -->
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <button class="modal-close" id="saveModalClose">×</button>
+            <h2 class="modal-title">Save Signature</h2>
+
+            <div class="form-group">
+                <label>Signature Name</label>
+                <input type="text" id="signatureTitle" placeholder="My Work Signature">
+            </div>
+
+            <button class="btn-primary" style="width: 100%; margin-top: 16px;" id="saveSignatureBtn">💾 Save</button>
+        </div>
+    </div>
+
+    <!-- My Signatures Modal -->
+    <div class="modal" id="signaturesModal">
+        <div class="modal-content">
+            <button class="modal-close" id="signaturesModalClose">×</button>
+            <h2 class="modal-title">My Signatures</h2>
+
+            <div class="signatures-list" id="signaturesList">
+                <p style="color: var(--text-muted); text-align: center;">No saved signatures yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <h2 class="modal-title">How to Import Your Signature</h2>
+
+            <div class="instruction-section">
+                <h3>📧 Gmail (Web)</h3>
+                <ol>
+                    <li>Click the <strong>Copy HTML</strong> button above</li>
+                    <li>Open Gmail and click the <strong>gear icon</strong> (⚙️) → <strong>See all settings</strong>
+                    </li>
+                    <li>Go to the <strong>General</strong> tab</li>
+                    <li>Scroll to the <strong>Signature</strong> section</li>
+                    <li>Click <strong>Create new</strong></li>
+                    <li>Press <strong>Ctrl+V</strong> (or Cmd+V on Mac) to paste</li>
+                    <li>Scroll down and click <strong>Save Changes</strong></li>
+                </ol>
+            </div>
+
+            <div class="instruction-section">
+                <h3>💻 macOS Mail</h3>
+                <ol>
+                    <li>Click the <strong>Copy HTML</strong> button above</li>
+                    <li>Open Mail → <strong>Preferences</strong> (or Mail → Settings)</li>
+                    <li>Go to the <strong>Signatures</strong> tab</li>
+                    <li>Select your email account</li>
+                    <li>Click the <strong>+</strong> button to add a new signature</li>
+                    <li>Press <strong>Cmd+V</strong> to paste the HTML</li>
+                    <li><strong>Important:</strong> Uncheck "Always match my default message font"</li>
+                </ol>
+            </div>
+
+            <div class="instruction-section">
+                <h3>📱 iOS Mail</h3>
+                <ol>
+                    <li>Click the <strong>Copy HTML</strong> button above</li>
+                    <li>Open <strong>Settings</strong> → <strong>Mail</strong> → <strong>Signature</strong></li>
+                    <li>Select the email account</li>
+                    <li>Tap in the signature field and paste</li>
+                    <li><strong>Immediately shake your device</strong> 📳</li>
+                    <li>Tap <strong>Undo</strong> when prompted (this retains formatting)</li>
+                    <li>Exit Settings</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Overlay -->
+    <div class="crop-overlay" id="cropOverlay">
+        <div class="crop-container">
+            <h3 style="margin-bottom: 16px;">Crop Your Logo</h3>
+            <div class="crop-canvas-wrapper">
+                <canvas id="cropCanvas"></canvas>
+            </div>
+            <div class="crop-controls">
+                <button class="btn-primary" id="applyCrop">✓ Apply Crop</button>
+                <button class="btn-secondary" id="cancelCrop">✗ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>
+            <div class="spinner"></div>
+            <p style="color: white; margin-top: 16px; text-align: center;" id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Background Removal Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/browser.min.js"></script>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://hseuvuwxuehuzhiiqhyh.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_V7-xqqeLNbkA_7OR2wAGwg_vPJXrtwm';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // State
+        const state = {
+            logo: null,
+            logoFile: null,
+            logoStorageUrl: null,
+            name: '',
+            title: '',
+            company: '',
+            website: '',
+            phone: '',
+            twitter: '',
+            previewMode: 'light',
+            currentUser: null,
+            currentSignatureId: null
+        };
+
+        let current Image = null;
+        let cropData = null;
+
+        // Elements
+        const logoInput = document.getElementById('logoInput');
+        const logoUploadZone = document.getElementById('logoUploadZone');
+        const logoPreviewContainer = document.getElementById('logoPreviewContainer');
+        const logoPreview = document.getElementById('logoPreview');
+        const nameInput = document.getElementById('nameInput');
+        const titleInput = document.getElementById('titleInput');
+        const companyInput = document.getElementById('companyInput');
+        const websiteInput = document.getElementById('websiteInput');
+        const phoneInput = document.getElementById('phoneInput');
+        const twitterInput = document.getElementById('twitterInput');
+        const previewCard = document.getElementById('previewCard');
+        const signaturePreview = document.getElementById('signaturePreview');
+        const modeToggle = document.getElementById('modeToggle');
+        const copyBtn = document.getElementById('copyBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importModal = document.getElementById('importModal');
+        const modalClose = document.getElementById('modalClose');
+        const toast = document.getElementById('toast');
+        const cropBtn = document.getElementById('cropBtn');
+        const removeBgBtn = document.getElementById('removeBgBtn');
+        const removeLogo = document.getElementById('removeLogo');
+        const cropOverlay = document.getElementById('cropOverlay');
+        const applyCrop = document.getElementById('applyCrop');
+        const cancelCrop = document.getElementById('cancelCrop');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+
+        // Auth elements
+        const signInBtn = document.getElementById('signInBtn');
+        const userMenu = document.getElementById('userMenu');
+        const userAvatar = document.getElementById('userAvatar');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const authModal = document.getElementById('authModal');
+        const authModalClose = document.getElementById('authModalClose');
+        const signOutBtn = document.getElementById('signOutBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const saveModal = document.getElementById('saveModal');
+        const saveModalClose = document.getElementById('saveModalClose');
+        const mySignaturesBtn = document.getElementById('mySignaturesBtn');
+        const signaturesModal = document.getElementById('signaturesModal');
+        const signaturesModalClose = document.getElementById('signaturesModalClose');
+        const signaturesList = document.getElementById('signaturesList');
+
+        // Auth tabs
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const signinPanel = document.getElementById('signinPanel');
+        const signupPanel = document.getElementById('signupPanel');
+        const signinSubmit = document.getElementById('signinSubmit');
+        const signupSubmit = document.getElementById('signupSubmit');
+
+        // Initialize - Check auth state
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                handleAuthStateChange(session.user);
+            }
+        });
+
+        // Auth state listener
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                handleAuthStateChange(session.user);
+            } else {
+                handleSignOut();
+            }
+        });
+
+        function handleAuthStateChange(user) {
+            state.currentUser = user;
+            signInBtn.classList.add('hidden');
+            userMenu.classList.remove('hidden');
+            saveBtn.classList.remove('hidden');
+
+            // Set user avatar initials
+            const initials = (user.email || 'U').substring(0, 2).toUpperCase();
+            userAvatar.textContent = initials;
+
+            showToast('Welcome back!');
+        }
+
+        function handleSignOut() {
+            state.currentUser = null;
+            signInBtn.classList.remove('hidden');
+            userMenu.classList.add('hidden');
+            saveBtn.classList.add('hidden');
+        }
+
+        // Auth Tab Switching
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const tabName = tab.dataset.tab;
+                signinPanel.classList.toggle('active', tabName === 'signin');
+                signupPanel.classList.toggle('active', tabName === 'signup');
+            });
+        });
+
+        // Sign In
+        signInBtn.addEventListener('click', () => {
+            authModal.classList.add('active');
+        });
+
+        signinSubmit.addEventListener('click', async () => {
+            const email = document.getElementById('signinEmail').value;
+            const password = document.getElementById('signinPassword').value;
+
+            if (!email || !password) {
+                showToast('Please fill in all fields');
+                return;
+            }
+
+            setLoading(true, 'Signing in...');
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            setLoading(false);
+
+            if (error) {
+                showToast('Error: ' + error.message);
+            } else {
+                authModal.classList.remove('active');
+                showToast('Signed in successfully!');
+            }
+        });
+
+        // Sign Up
+        signupSubmit.addEventListener('click', async () => {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!name || !email || !password) {
+                showToast('Please fill in all fields');
+                return;
+            }
+
+            setLoading(true, 'Creating account...');
+
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: name
+                    }
+                }
+            });
+
+            setLoading(false);
+
+            if (error) {
+                showToast('Error: ' + error.message);
+            } else {
+                authModal.classList.remove('active');
+                showToast('Account created! Please check your email to verify.');
+            }
+        });
+
+        // Sign Out
+        signOutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            dropdownMenu.classList.remove('active');
+            showToast('Signed out successfully');
+        });
+
+        // User menu dropdown
+        userAvatar.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('active');
+            }
+        });
+
+        // Save Signature
+        saveBtn.addEventListener('click', () => {
+            if (!state.name) {
+                showToast('Please fill in your name first');
+                return;
+            }
+            saveModal.classList.add('active');
+        });
+
+        document.getElementById('saveSignatureBtn').addEventListener('click', async () => {
+            const title = document.getElementById('signatureTitle').value;
+
+            if (!title) {
+                showToast('Please enter a signature name');
+                return;
+            }
+
+            setLoading(true, 'Saving signature...');
+
+            try {
+                // Upload logo if exists and not already uploaded
+                let logoUrl = state.logoStorageUrl;
+                if (state.logoFile && !state.logoStorageUrl) {
+                    logoUrl = await uploadLogoToStorage(state.logoFile);
+                    state.logoStorageUrl = logoUrl;
+                }
+
+                const signatureData = {
+                    user_id: state.currentUser.id,
+                    title: title,
+                    name: state.name,
+                    job_title: state.title,
+                    company: state.company,
+                    website: state.website,
+                    phone: state.phone,
+                    twitter: state.twitter,
+                    logo_url: logoUrl
+                };
+
+                const { data, error } = await supabase
+                    .from('signatures')
+                    .insert(signatureData)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                state.currentSignatureId = data.id;
+                saveModal.classList.remove('active');
+                showToast('Signature saved successfully!');
+            } catch (error) {
+                showToast('Error saving signature: ' + error.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // My Signatures
+        mySignaturesBtn.addEventListener('click', async () => {
+            dropdownMenu.classList.remove('active');
+            signaturesModal.classList.add('active');
+
+            setLoading(true, 'Loading signatures...');
+
+            try {
+                const { data, error } = await supabase
+                    .from('signatures')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (data.length === 0) {
+                    signaturesList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No saved signatures yet.</p>';
+                } else {
+                    signaturesList.innerHTML = data.map(sig => `
+                        <div class="signature-item">
+                            <div class="signature-info">
+                                <h4>${sig.title}</h4>
+                                <small>${sig.name} - ${new Date(sig.created_at).toLocaleDateString()}</small>
+                            </div>
+                            <div class="signature-actions">
+                                <button class="btn-secondary btn-small" onclick="loadSignature('${sig.id}')">Load</button>
+                                <button class="btn-secondary btn-small" onclick="deleteSignature('${sig.id}')">Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                showToast('Error loading signatures: ' + error.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Load Signature
+        window.loadSignature = async function (id) {
+            setLoading(true, 'Loading signature...');
+
+            try {
+                const { data, error } = await supabase
+                    .from('signatures')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                // Populate form
+                state.name = data.name || '';
+                state.title = data.job_title || '';
+                state.company = data.company || '';
+                state.website = data.website || '';
+                state.phone = data.phone || '';
+                state.twitter = data.twitter || '';
+                state.logoStorageUrl = data.logo_url;
+                state.currentSignatureId = id;
+
+                nameInput.value = state.name;
+                titleInput.value = state.title;
+                companyInput.value = state.company;
+                websiteInput.value = state.website;
+                phoneInput.value = state.phone;
+                twitterInput.value = state.twitter;
+
+                // Load logo if exists
+                if (data.logo_url) {
+                    state.logo = data.logo_url;
+                    logoPreview.innerHTML = `<img src="${data.logo_url}" alt="Logo">`;
+                    logoPreviewContainer.classList.add('active');
+                }
+
+                updatePreview();
+                signaturesModal.classList.remove('active');
+                showToast('Signature loaded!');
+            } catch (error) {
+                showToast('Error loading signature: ' + error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Delete Signature
+        window.deleteSignature = async function (id) {
+            if (!confirm('Are you sure you want to delete this signature?')) return;
+
+            setLoading(true, 'Deleting signature...');
+
+            try {
+                const { error } = await supabase
+                    .from('signatures')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                showToast('Signature deleted');
+                mySignaturesBtn.click(); // Refresh list
+            } catch (error) {
+                showToast('Error deleting signature: ' + error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Upload Logo to Supabase Storage
+        async function uploadLogoToStorage(file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${state.currentUser.id}/${Date.now()}.${fileExt}`;
+
+            const { data, error } = await supabase.storage
+                .from('logos')
+                .upload(fileName, file);
+
+            if (error) throw error;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('logos')
+                .getPublicUrl(fileName);
+
+            return publicUrl;
+        }
+
+        // Logo Upload Handlers
+        logoUploadZone.addEventListener('click', () => logoInput.click());
+
+        logoUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            logoUploadZone.classList.add('drag-over');
+        });
+
+        logoUploadZone.addEventListener('dragleave', () => {
+            logoUploadZone.classList.remove('drag-over');
+        });
+
+        logoUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            logoUploadZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            handleLogoUpload(file);
+        });
+
+        logoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleLogoUpload(file);
+        });
+
+        function handleLogoUpload(file) {
+            if (!file) return;
+
+            // Validate file type
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+            if (!validTypes.includes(file.type)) {
+                showToast('Please upload a PNG, JPG, or SVG file');
+                return;
+            }
+
+            // Validate file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('File size must be less than 2MB');
+                return;
+            }
+
+            state.logoFile = file;
+            state.logoStorageUrl = null; // Reset storage URL since we have a new file
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Resize if needed
+                    const maxWidth = 120;
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('2d');
+
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const resizedDataUrl = canvas.toDataURL('image/png');
+                    currentImage = resizedDataUrl;
+                    state.logo = resizedDataUrl;
+
+                    logoPreview.innerHTML = `<img src="${resizedDataUrl}" alt="Logo">`;
+                    logoPreviewContainer.classList.add('active');
+                    updatePreview();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove Logo
+        removeLogo.addEventListener('click', () => {
+            state.logo = null;
+            state.logoFile = null;
+            state.logoStorageUrl = null;
+            currentImage = null;
+            logoPreview.innerHTML = '';
+            logoPreviewContainer.classList.remove('active');
+            logoInput.value = '';
+            updatePreview();
+        });
+
+        // Crop Handler
+        cropBtn.addEventListener('click', () => {
+            if (!currentImage) return;
+            initializeCrop();
+        });
+
+        function initializeCrop() {
+            cropOverlay.classList.add('active');
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                cropData = { img, canvas, ctx };
+            };
+            img.src = currentImage;
+        }
+
+        applyCrop.addEventListener('click', () => {
+            if (cropData) {
+                state.logo = cropData.canvas.toDataURL('image/png');
+                currentImage = state.logo;
+                logoPreview.innerHTML = `<img src="${state.logo}" alt="Logo">`;
+                updatePreview();
+            }
+            cropOverlay.classList.remove('active');
+        });
+
+        cancelCrop.addEventListener('click', () => {
+            cropOverlay.classList.remove('active');
+        });
+
+        // Background Removal
+        removeBgBtn.addEventListener('click', async () => {
+            if (!currentImage) return;
+
+            try {
+                setLoading(true, 'Removing background...');
+
+                const img = new Image();
+                img.src = currentImage;
+
+                await new Promise(resolve => img.onload = resolve);
+
+                const blob = await removeBackground(img);
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    state.logo = e.target.result;
+                    currentImage = state.logo;
+                    logoPreview.innerHTML = `<img src="${state.logo}" alt="Logo">`;
+                    updatePreview();
+                    setLoading(false);
+                    showToast('Background removed successfully!');
+                };
+
+                reader.readAsDataURL(blob);
+            } catch (error) {
+                console.error('Background removal error:', error);
+                setLoading(false);
+                showToast('Background removal failed. Using original image.');
+            }
+        });
+
+        // Input Handlers
+        const inputs = [nameInput, titleInput, companyInput, websiteInput, phoneInput, twitterInput];
+        inputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const field = e.target.id.replace('Input', '');
+                state[field] = e.target.value;
+                updateInputWrapper(e.target);
+                updatePreview();
+            });
+        });
+
+        function updateInputWrapper(input) {
+            const wrapper = input.parentElement;
+            if (input.value.trim()) {
+                wrapper.classList.add('has-content');
+            } else {
+                wrapper.classList.remove('has-content');
+            }
+        }
+
+        // Clear buttons
+        document.querySelectorAll('.clear-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.target;
+                const input = document.getElementById(targetId);
+                input.value = '';
+                const field = targetId.replace('Input', '');
+                state[field] = '';
+                updateInputWrapper(input);
+                updatePreview();
+            });
+        });
+
+        // Preview Update
+        function updatePreview() {
+            const html = generateSignatureHTML();
+            signaturePreview.innerHTML = html;
+        }
+
+        function generateSignatureHTML(forCopy = false) {
+            const bgColor = forCopy ? '#FFFFFF' : (state.previewMode === 'light' ? '#FFFFFF' : '#1A1A1A');
+            const textColor = forCopy ? '#2B2B2B' : (state.previewMode === 'light' ? '#2B2B2B' : '#E0E0E0');
+            const mutedColor = forCopy ? '#6B6B6B' : (state.previewMode === 'light' ? '#6B6B6B' : '#A0A0A0');
+
+            if (!state.name && !state.logo) {
+                return '<p style="color: #6B6B6B;">Fill in your details to see the preview...</p>';
+            }
+
+            let html = '<div style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif; max-width: 400px;">';
+
+            // Logo
+            if (state.logo && state.website) {
+                html += `<a href="${state.website}" style="display: inline-block; margin-bottom: 12px;"><img src="${state.logo}" alt="Logo" style="width: 120px; height: auto; display: block;"></a>`;
+            } else if (state.logo) {
+                html += `<div style="margin-bottom: 12px;"><img src="${state.logo}" alt="Logo" style="width: 120px; height: auto; display: block;"></div>`;
+            }
+
+            // Name
+            if (state.name) {
+                html += `<div style="font-size: 16px; font-weight: 700; color: ${textColor}; margin-bottom: 4px;">${state.name}</div>`;
+            }
+
+            // Title and Company
+            if (state.title || state.company) {
+                let titleCompany = '';
+                if (state.title) titleCompany += state.title;
+                if (state.title && state.company) titleCompany += ' • ';
+                if (state.company) titleCompany += state.company;
+                html += `<div style="font-size: 14px; color: ${mutedColor}; margin-bottom: 8px;">${titleCompany}</div>`;
+            }
+
+            // Contact Info
+            const contactParts = [];
+            if (state.phone) contactParts.push(state.phone);
+            if (state.twitter) {
+                const handle = state.twitter.startsWith('@') ? state.twitter : '@' + state.twitter;
+                contactParts.push(`<a href="https://twitter.com/${handle.substring(1)}" style="color: #1DA1F2; text-decoration: none;">${handle}</a>`);
+            }
+
+            if (contactParts.length > 0) {
+                html += `<div style="font-size: 13px; color: ${mutedColor};">${contactParts.join(' • ')}</div>`;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        // Mode Toggle
+        modeToggle.addEventListener('change', (e) => {
+            state.previewMode = e.target.checked ? 'dark' : 'light';
+            previewCard.classList.toggle('dark-mode', e.target.checked);
+            previewCard.classList.toggle('light-mode', !e.target.checked);
+            updatePreview();
+        });
+
+        // Copy to Clipboard
+        copyBtn.addEventListener('click', async () => {
+            const html = generateSignatureHTML(true);
+
+            try {
+                await navigator.clipboard.writeText(html);
+                showToast('✓ Copied to clipboard!');
+            } catch (err) {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = html;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('✓ Copied to clipboard!');
+            }
+        });
+
+        // Modal handlers
+        importBtn.addEventListener('click', () => {
+            importModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        modalClose.addEventListener('click', () => closeModal(importModal));
+        authModalClose.addEventListener('click', () => closeModal(authModal));
+        saveModalClose.addEventListener('click', () => closeModal(saveModal));
+        signaturesModalClose.addEventListener('click', () => closeModal(signaturesModal));
+
+        [importModal, authModal, saveModal, signaturesModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal(importModal);
+                closeModal(authModal);
+                closeModal(saveModal);
+                closeModal(signaturesModal);
+            }
+        });
+
+        function closeModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Toast
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Loading
+        function setLoading(isLoading, text = 'Processing...') {
+            if (isLoading) {
+                loadingText.textContent = text;
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        // Initialize preview
+        updatePreview();
+    </script>
+</body>
+
+</html>
