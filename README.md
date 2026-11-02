@@ -8,10 +8,16 @@ A beautiful, professional email signature generator with user authentication and
 ## ✨ Features
 
 - 📝 **Easy-to-use Form** - Create professional email signatures in seconds
+- 🎭 **3 Signature Templates** - Classic, Modern and Compact layouts
+- 🖌️ **Accent Colors** - Match your brand with preset swatches or a custom color
+- 📋 **Copy Signature (rich text)** - Copies rich HTML to your clipboard, ready to paste into your email client
+- ⬇️ **Download as HTML** - Export your signature as a standalone .html file
 - 🖼️ **Logo Upload** - Add your company logo with crop and resize tools
 - 🎨 **Live Preview** - See your signature in real-time with light/dark mode
 - 🔐 **User Authentication** - Sign up and save your signatures
 - ☁️ **Cloud Storage** - Save unlimited signatures to your account
+- 💾 **Style Persistence** - Template and accent choices are remembered in your browser, including per saved signature
+- ♿ **Reduced Motion** - Respects the prefers-reduced-motion accessibility setting
 - 📱 **Fully Responsive** - Works perfectly on all devices
 - 📧 **Email Client Instructions** - Step-by-step guides for Gmail, macOS Mail, and iOS Mail
 
@@ -20,8 +26,9 @@ A beautiful, professional email signature generator with user authentication and
 1. **Visit the app**: [Live Demo](https://your-app-url.vercel.app)
 2. **Fill in your details**: Name, title, company, contact info
 3. **Upload logo** (optional): Drag and drop or browse
-4. **Copy HTML**: Click "Copy to Clipboard"
-5. **Import to email**: Follow the instructions in the "How to import?" modal
+4. **Pick a style**: Choose a template and accent color
+5. **Copy Signature**: Click "Copy Signature" and paste it into your email app (or "Copy HTML" / "Download" for the raw file)
+6. **Import to email**: Follow the instructions in the "Import Guide" modal
 
 ## 🛠️ Tech Stack
 
@@ -59,6 +66,12 @@ See `DEPLOY_NOW.md` for quick deployment instructions or `VERCEL_DEPLOYMENT.md` 
 ### Deploy to Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/email-signature-generator)
+
+## ✅ Testing
+
+- Verified in Chrome with automated UI checks (Playwright): template switching, preset and custom accent colors, form updates, reload persistence, logo upload, HTML download and clipboard payload
+- Per-signature style persistence is browser-local (localStorage) and was covered by mocked checks; live save/load requires your Supabase backend
+- Not yet tested in live email clients - try your signature in your own email app before rolling it out
 
 ## 📖 Documentation
 
